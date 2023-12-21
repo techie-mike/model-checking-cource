@@ -9,10 +9,10 @@ VARIABLE currentTime, alarmTime, currentState, alarmState, button
 
 (* Initialization: initial state - clock off *)
 Init == /\ currentState = OFF
-        /\ currentTime \in {0..86399}
+        /\ currentTime \in {0, 100}
         /\ alarmTime = 0
         /\ alarmState = "Off"
-        /\ button \in {OFF, PRESSED, PRESSED_HOLD}
+        /\ button \in {OFF, PRESSED, PRESSED_HOLD, PRESSED_LONG_HOLD}
 
 (* Actions to set the time - only from settings *)
 SetTimeAction(time) ==
@@ -53,7 +53,7 @@ SetAlarmAction(time) ==
     /\ alarmTime' = time
     /\ alarmState' = "On"
     /\ currentState' = SHOW_TIME
-    /\ UNCHANGED currentTime
+    /\ UNCHANGED << currentTime, button >>
 
 (* Actions to trigger the alarm, it is assumed that all the settings are set, if we are in the settings, then the alarm does not work *)
 AlarmTriggered ==
@@ -62,7 +62,7 @@ AlarmTriggered ==
     /\ alarmState = "On"
     /\ alarmState' = "Off"
     /\ currentState' = ALARM
-    /\ UNCHANGED alarmTime
+    /\ UNCHANGED << alarmTime, button, currentTime >>
     
 UpdateTime ==
     /\ currentTime' = (currentTime + 1) % 86400
